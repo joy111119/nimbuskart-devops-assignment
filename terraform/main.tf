@@ -145,3 +145,42 @@ resource "aws_ebs_volume" "orphan_volume" {
     ManagedBy   = "terraform"
   }
 }
+
+resource "aws_ebs_volume" "protected_volume" {
+  availability_zone = "us-east-1a"
+  size              = 8
+
+  tags = {
+    Name        = "${var.project}-protected-volume"
+    Protected   = "true"
+    Project     = var.project
+    Environment = var.environment
+    Owner       = var.owner
+    ManagedBy   = "terraform"
+  }
+}
+
+resource "aws_eip" "unused_eip" {
+  domain = "vpc"
+
+  tags = {
+    Name        = "${var.project}-unused-eip"
+    Project     = var.project
+    Environment = var.environment
+    Owner       = var.owner
+    ManagedBy   = "terraform"
+  }
+}
+
+resource "aws_eip" "protected_eip" {
+  domain = "vpc"
+
+  tags = {
+    Name        = "${var.project}-protected-eip"
+    Protected   = "true"
+    Project     = var.project
+    Environment = var.environment
+    Owner       = var.owner
+    ManagedBy   = "terraform"
+  }
+}
