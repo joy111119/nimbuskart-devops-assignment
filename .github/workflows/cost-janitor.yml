@@ -1,0 +1,103 @@
+name: Cost Janitor
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+
+jobs:
+  cost-janitor:
+    runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack:latest
+
+        ports:
+          - 4566:4566
+
+        env:
+          SERVICES: ec2,s3,iam,sts
+          DEBUG: 1
+
+        options: >-
+          --health-cmd="curl -f http://localhost:4566/_localstack/health || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: http://localhost:4566
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Install terraform-local
+        run: |
+          pip install terraform-local
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r janitor/requirements.txt
+
+      - name: Wait for LocalStack
+        run: |
+          for i in {1..30}; do
+            curl -s http://localhost:4566/_localstack/health && break
+            echo "Waiting for LocalStack..."
+            sleep 5
+          done
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: |
+          tflocal init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: |
+          terraform fmt -check
+          terraform validate
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: |
+          rm -f localstack_providers_override.tf
+          tflocal apply -auto-approve
+
+      - name: Run Cost Janitor
+        id: janitor
+        run: |
+          python janitor/janitor.py --dry-run
+
+      - name: Upload JSON Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-json
+          path: janitor/report.json
+
+      - name: Upload Markdown Summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-markdown
+          path: janitor/summary.md
+
+      - name: Comment PR with Summary
+        if: failure() && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: janitor/summary.md

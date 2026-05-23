@@ -113,6 +113,22 @@ resource "aws_instance" "web_2" {
   }
 }
 
+resource "aws_instance" "stopped_instance" {
+  ami                    = "ami-12345678"
+  instance_type          = "t3.micro"
+  subnet_id              = module.network.public_subnet_1_id
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+
+  tags = {
+    Name        = "${var.project}-stopped-instance"
+    Project     = var.project
+    Environment = var.environment
+    Owner       = var.owner
+    ManagedBy   = "terraform"
+    Tier        = "web"
+  }
+}
+
 resource "aws_s3_bucket" "logs" {
   bucket = "${lower(var.project)}-${var.environment}-logs"
 
@@ -134,7 +150,7 @@ resource "aws_s3_bucket_versioning" "logs_versioning" {
 }
 
 resource "aws_ebs_volume" "orphan_volume" {
-  availability_zone = "us-east-1a"
+  availability_zone = var.availability_zone
   size              = 8
 
   tags = {
@@ -147,36 +163,11 @@ resource "aws_ebs_volume" "orphan_volume" {
 }
 
 resource "aws_ebs_volume" "protected_volume" {
-  availability_zone = "us-east-1a"
+  availability_zone = var.availability_zone
   size              = 8
 
   tags = {
     Name        = "${var.project}-protected-volume"
-    Protected   = "true"
-    Project     = var.project
-    Environment = var.environment
-    Owner       = var.owner
-    ManagedBy   = "terraform"
-  }
-}
-
-resource "aws_eip" "unused_eip" {
-  domain = "vpc"
-
-  tags = {
-    Name        = "${var.project}-unused-eip"
-    Project     = var.project
-    Environment = var.environment
-    Owner       = var.owner
-    ManagedBy   = "terraform"
-  }
-}
-
-resource "aws_eip" "protected_eip" {
-  domain = "vpc"
-
-  tags = {
-    Name        = "${var.project}-protected-eip"
     Protected   = "true"
     Project     = var.project
     Environment = var.environment

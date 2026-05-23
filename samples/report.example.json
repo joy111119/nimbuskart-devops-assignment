@@ -1,0 +1,58 @@
+{
+  "scan_timestamp": "2026-05-23T11:50:16.316360+00:00",
+  "account_id": "000000000000",
+  "region": "us-east-1",
+  "summary": {
+    "total_orphans": 4,
+    "estimated_monthly_waste_usd": 0.64
+  },
+  "findings": [
+    {
+      "resource_id": "vol-fcd66e36",
+      "resource_type": "ebs_volume",
+      "reason": "unattached",
+      "age_days": 0,
+      "estimated_monthly_cost_usd": 0.64,
+      "tags": {
+        "Protected": "true",
+        "Project": "NimbusKart",
+        "Environment": "staging",
+        "ManagedBy": "terraform",
+        "Name": "NimbusKart-protected-volume",
+        "Owner": "Saharsh"
+      },
+      "suggested_action": "delete",
+      "safe_to_auto_delete": false
+    },
+    {
+      "resource_id": "vol-055b534b",
+      "resource_type": "ebs_volume",
+      "reason": "missing_required_tags",
+      "age_days": 0,
+      "estimated_monthly_cost_usd": 0,
+      "tags": {},
+      "suggested_action": "add_tags",
+      "safe_to_auto_delete": false
+    },
+    {
+      "resource_id": "vol-f13b151e",
+      "resource_type": "ebs_volume",
+      "reason": "missing_required_tags",
+      "age_days": 0,
+      "estimated_monthly_cost_usd": 0,
+      "tags": {},
+      "suggested_action": "add_tags",
+      "safe_to_auto_delete": false
+    },
+    {
+      "resource_id": "vol-b6b52f81",
+      "resource_type": "ebs_volume",
+      "reason": "missing_required_tags",
+      "age_days": 0,
+      "estimated_monthly_cost_usd": 0,
+      "tags": {},
+      "suggested_action": "add_tags",
+      "safe_to_auto_delete": false
+    }
+  ]
+}

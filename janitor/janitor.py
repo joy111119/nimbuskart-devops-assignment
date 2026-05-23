@@ -7,7 +7,7 @@ import boto3
 from constants import (
     REQUIRED_TAGS,
     EBS_GP3_PRICE_PER_GB,
-    ELASTIC_IP_MONTHLY_PRICE
+    ELASTIC_IP_MONTHLY_COST
 )
 
 
@@ -120,7 +120,7 @@ def scan_unused_elastic_ips(ec2):
                 "age_days": 0,
 
                 "estimated_monthly_cost_usd": (
-                    ELASTIC_IP_MONTHLY_PRICE
+                    ELASTIC_IP_MONTHLY_COST
                 ),
 
                 "tags": tags,
@@ -253,7 +253,7 @@ def generate_report(findings):
                     ]
                     for item in findings
                 ),
-                
+                2
             )
         },
 
@@ -268,11 +268,22 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=True,
+        help="Scan resources without deleting"
+    )
+
+    parser.add_argument(
         "--delete",
-        action="store_true"
+        action="store_true",
+        help="Delete orphaned resources"
     )
 
     args = parser.parse_args()
+
+    if args.delete:
+        args.dry_run = False
 
     ec2 = get_ec2_client()
 
@@ -322,7 +333,7 @@ def main():
     print("\n")
     print(markdown_summary)
 
-    if findings and not args.delete:
+    if findings and args.dry_run:
         exit(1)
 
 
