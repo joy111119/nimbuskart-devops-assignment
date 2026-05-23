@@ -74,23 +74,31 @@ jobs:
           tflocal apply -auto-approve
 
       - name: Run Cost Janitor
+        id: janitor
+        continue-on-error: true
         run: |
           python janitor/janitor.py --dry-run
 
       - name: Upload JSON Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: report-json
           path: janitor/report.json
 
       - name: Upload Markdown Summary
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: report-markdown
           path: janitor/summary.md
 
       - name: Comment PR with Summary
-        if: failure() && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: janitor/summary.md
+
+      - name: Fail workflow if orphans found
+        if: steps.janitor.outcome == 'failure'
+        run: exit 1
