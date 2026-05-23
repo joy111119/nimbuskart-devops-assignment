@@ -13,7 +13,7 @@ jobs:
 
     services:
       localstack:
-        image: localstack/localstack:latest
+        image: localstack/localstack:3.0
 
         ports:
           - 4566:4566
@@ -21,12 +21,6 @@ jobs:
         env:
           SERVICES: ec2,s3,iam,sts
           DEBUG: 1
-
-        options: >-
-          --health-cmd="curl -f http://localhost:4566/_localstack/health || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=20
 
     env:
       AWS_ACCESS_KEY_ID: test
@@ -80,7 +74,6 @@ jobs:
           tflocal apply -auto-approve
 
       - name: Run Cost Janitor
-        id: janitor
         run: |
           python janitor/janitor.py --dry-run
 
