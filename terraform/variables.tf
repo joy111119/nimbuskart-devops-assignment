@@ -49,5 +49,5 @@ variable "public_subnet_2_cidr" {
 variable "ssh_cidr" {
   description = "Allowed SSH CIDR block"
   type        = string
-  default     = "0.0.0.0/0"
+  default     = "192.168.1.0/24"
 }

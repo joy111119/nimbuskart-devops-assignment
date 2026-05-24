@@ -316,7 +316,7 @@ def main():
         )
     )
 
-    with open("report.json", "w") as file:
+    with open("janitor/report.json", "w") as file:
 
         json.dump(
             report,
@@ -324,7 +324,7 @@ def main():
             indent=2
         )
 
-    with open("summary.md", "w") as file:
+    with open("janitor/summary.md", "w") as file:
 
         file.write(markdown_summary)
 
