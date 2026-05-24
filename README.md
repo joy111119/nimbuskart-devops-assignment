@@ -115,6 +115,8 @@ The workflow will:
 
 - SSH access was restricted to a configurable CIDR instead of `0.0.0.0/0` because unrestricted SSH access is insecure in production environments.
 
+- Since LocalStack has limited support for stopped EC2 instance and unattached Elastic IP simulation, the Janitor currently focuses primarily on detecting unattached EBS volumes and missing required tags.
+
 - S3 lifecycle configuration was removed because LocalStack kept timing out even though the Terraform syntax was correct.
 
 - A static AMI ID was used since LocalStack does not require a real EC2 image.
